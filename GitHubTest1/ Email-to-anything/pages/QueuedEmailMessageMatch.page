@@ -1,0 +1,63 @@
+<apex:page standardController="ortoo_e2a__Queued_Email_Message__c" extensions="ortoo_e2a.QueuedEmailMatchExtension" id="thePage">
+    <apex:form id="theform">
+    
+        <!-- fields required for "related to popup lookup" -->
+        <input name="thePage:theform:thePB:pbS:pbSI_target:target_name_mod" id="thePage:theform:thePB:pbS:pbSI_target:target_name_mod" value="0" type="hidden"/>
+        <input name="thePage:theform:thePB:pbS:pbSI_target:target_name_lkid" id="thePage:theform:thePB:pbS:pbSI_target:target_name_lkid" value="" type="hidden"/>
+        <input name="thePage:theform:thePB:pbS:pbSI_target:target_name_lkold" id="thePage:theform:thePB:pbS:pbSI_target:target_name_lkold" value="" type="hidden"/>
+        <!-- fields required for "related to popup lookup" -->
+
+    
+        <apex:sectionHeader title="Match Unmatched Email Message" subtitle="{!QueuedEmailMessageName}"/>
+        <apex:pageBlock id="email_match" id="thePB">
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!Save}" value="Save" disabled="{!SaveButtonIsDisabled}"/>
+                <apex:commandButton action="{!Cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pagemessages />
+            <apex:pageBlockSection title="Select Match Object" id="pbS" columns="1" collapsible="false">
+                <apex:pageBlockSectionItem id="pbSI_email">
+                    <apex:outputLabel value="Match this unmatched email"/>
+                    <apex:outputText value="{!QueuedEmailMessageName}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="pbSI_target" helpText="{!TargetSObject_HelpText}">
+                    <apex:outputLabel value="Target Object / Email Service"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!TargetSObjectPrefix}" id="target_prefix" size="1">
+                            <apex:selectOptions value="{!ObjectOptions}"></apex:selectOptions>
+                            <apex:actionSupport event="onchange" action="{!ResetMatchType}" reRender="pbS"/>
+                        </apex:selectList>
+                        &nbsp;
+                        <apex:inputText value="{!TargetSObjectName}" id="target_name" disabled="{!TargetSObjectNameIsDisabled}"/>
+                        <apex:outputLink id="target_btn" value="JavaScript:openLookup('/_ui/common/data/LookupPage?lkfm=thePage:theform&lknm=thePage:theform:thePB:pbS:pbSI_target:target_name&lktp='+document.getElementById('thePage:theform:thePB:pbS:pbSI_target:target_prefix').value,670,'1','&lksrch='+document.getElementById('thePage:theform:thePB:pbS:pbSI_target:target_name').value)" onclick="setLastMousePosition(event)" title="Target Object Lookup (New Window)" disabled="{!TargetSObjectNameIsDisabled}"  style="vertical-align:top">
+                            <img src="/s.gif" class="lookupIcon" onmouseout="this.className='lookupIcon';" onmouseover="this.className='lookupIconOn';"/>
+                        </apex:outputLink>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="pbSI_match" helpText="{!MatchType_HelpText}">
+                    <apex:outputLabel value="Match Type"/>
+                    <apex:selectRadio value="{!MatchType}" id="match_type">
+                        <apex:selectOptions value="{!MatchOptions}"/>
+                        <apex:actionSupport event="onchange" reRender="pbS"/>
+                    </apex:selectRadio>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!AssignedOwner_HelpText}" rendered="{!AssignedOwnerIsRendered}">
+                    <apex:outputLabel value="Assigned To"/>
+                    <apex:outputPanel id="assigned_owner_panel">
+                        <apex:selectList value="{!AssignedOwnerType}" size="1">
+                            <apex:selectOptions value="{!AssignedOwnerTypeOptions}"></apex:selectOptions>
+                            <apex:actionSupport event="onchange" reRender="assigned_owner_panel"/>
+                        </apex:selectList>
+                        &nbsp;
+                        <apex:inputField value="{!AssignedOwner.ortoo_e2a__Assigned_Owner__c}" rendered="{!AssignedOwnerType != 'QUEUE'}"/>
+                        <apex:selectList value="{!AssignedQueue}" size="1" rendered="{!AssignedOwnerType == 'QUEUE'}">
+                            <apex:selectOptions value="{!AssignedOwnerQueueOptions}"/>
+                        </apex:selectList>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

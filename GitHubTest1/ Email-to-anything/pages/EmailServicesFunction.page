@@ -1,0 +1,625 @@
+<apex:page standardController="ortoo_e2a__Email_Services_Function__c" extensions="ortoo_e2a.EmailServicesFunctionExtension" id="thePage" tabStyle="Email_Services_Functions__tab">
+    <apex:form id="theForm">
+        <apex:sectionHeader title="Target Object Rules"/>
+        &nbsp;&#171;&nbsp;
+        <apex:outputLink value="{!$CurrentPage.parameters.retURL}">Back to List: E2A Email Services</apex:outputLink>
+        <br/><br/>
+        <apex:pageBlock id="headerPageBlock" title="Email Service">
+            <apex:pageBlockSection columns="1" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Email Service Name"/>
+                    <apex:outputLink value="/email/admin/detailEmailServicesFunction.apexp?id={!FunctionId}">
+                        {!FunctionName}
+                    </apex:outputLink>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="E2A Apex Class"/>
+                    <apex:outputText value="{!ApexClassName}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Target Object"/>
+                    <apex:outputText value="{!RelatedObjectLabel}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Active"/>
+                    <apex:outputField value="{!ESFunction.ortoo_e2a__Is_Active__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem rendered="{!FunctionIsDeleted}">
+                    <apex:outputText value="NOTE:" style="color:red"/>
+                    <apex:outputText value="*** These rules have been DELETED ***" style="color:red;font-weight:bold"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="AddressListPageBlock" title="Email Addresses">
+            <apex:pageBlockSection columns="1">
+                <apex:pageBlockTable value="{!EmailServicesAddressList}" var="SA" id="address_list_table">
+                    <apex:column value="{!SA.LocalPart}@{!SA.EmailDomainName}" headerValue="Email Address"/>
+                    <apex:column value="{!SA.IsActive}" headerValue="Active"/>
+                </apex:pageBlockTable>
+                <apex:outputText value="no email addresses exist for this service" rendered="{!AddressesDoNotExist}"/>       
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="viewPageBlock" title="Target Object Rules" rendered="{!EditIsNotActive}">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!EditFunctionDetails}" value="Edit" rendered="{!EditIsAllowed}"/>
+                <apex:commandButton action="{!DeleteFunctionDetails}" value="Delete" onclick="if (!window.confirm('You are about to delete these target object rules\nThey cannot be retrieved. Are you sure?')) return false;"  rendered="{!DeleteIsAllowed}"/>
+            </apex:pageBlockButtons>
+            <apex:pagemessages />
+            <apex:pageBlockSection columns="2">
+                <apex:pageBlockSectionItem helpText="{!RulesName_HelpText}">
+                    <apex:outputLabel value="Rules Name"/>
+                    <apex:outputText value="{!ESFunction.Name}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!QueueName_HelpText}">
+                    <apex:outputLabel value="Unmatched Email Queue"/>
+                    <apex:outputText value="{!QueueName}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RecordInsert_HelpText}">
+                    <apex:outputLabel value="{!RelatedObjectLabel} - Object Insert"/>
+                    <apex:outputField value="{!ESFunction.ortoo_e2a__Record_Insert__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedEmailMessageObjectName_HelpText}">
+                    <apex:outputLabel value="Custom Email Storage Object"/>
+                    <apex:outputText value="{!RelatedEmailMessageObjectName}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RecordType_HelpText}">
+                    <apex:outputLabel value="Insert Record Type"/>
+                    <apex:outputText value="{!RecordTypeName}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Field Assignments" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!SubjectAssignField_HelpText}">
+                    <apex:outputLabel value="Email Subject - Saved In Field"/>
+                    <apex:outputText value="{!SubjectAssignField}" title="{!SubjectAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyAssignField_HelpText}">
+                    <apex:outputLabel value="Email Body - Saved In Field"/>
+                    <apex:outputText value="{!BodyAssignField}" title="{!BodyAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!HtmlBodyAssignField_HelpText}">
+                    <apex:outputLabel value="Email Html Body - Saved In Field"/>
+                    <apex:outputText value="{!HtmlBodyAssignField}" title="{!HtmlBodyAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromAddressAssignField_HelpText}">
+                    <apex:outputLabel value="Email From-Address - Saved In Field"/>
+                    <apex:outputText value="{!FromAddressAssignField}" title="{!FromAddressAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromDomainAssignField_HelpText}">
+                    <apex:outputLabel value="Email From Address Domain - Saved In Field"/>
+                    <apex:outputText value="{!FromDomainAssignField}" title="{!FromDomainAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From Name - Saved In Field"/>
+                    <apex:outputText value="{!FromNameAssignField}" title="{!FromNameAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromFirstNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From First Name - Saved In Field"/>
+                    <apex:outputText value="{!FromFirstNameAssignField}" title="{!FromFirstNameAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromLastNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From Last Name - Saved In Field"/>
+                    <apex:outputText value="{!FromLastNameAssignField}" title="{!FromLastNameAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!ToAddressAssignField_HelpText}">
+                    <apex:outputLabel value="Email To-Address - Saved In Field"/>
+                    <apex:outputText value="{!ToAddressAssignField}" title="{!ToAddressAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!MatchedContactAssignField_HelpText}">
+                    <apex:outputLabel value="Matched Contact - Saved In Field"/>
+                    <apex:outputText value="{!MatchedContactAssignField}" title="{!MatchedContactAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ContactMatchType_HelpText}">
+                    <apex:outputLabel value="Type of Contact Match" style="{!ContactMatchTypeStyle}"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Contact_Match_Type__c}" style="{!ContactMatchTypeStyle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!MatchedAccountAssignField_HelpText}">
+                    <apex:outputLabel value="Matched Account - Saved In Field"/>
+                    <apex:outputText value="{!MatchedAccountAssignField}" title="{!MatchedAccountAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!EmailDateAssignField_HelpText}">
+                    <apex:outputLabel value="Email Date - Saved In Field"/>
+                    <apex:outputText value="{!EmailDateAssignField}" title="{!EmailDateAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!EmailDateAddDays_HelpText}">
+                    <apex:outputLabel value="Date Adjustment Days" style="{!EmailDateAddDaysStyle}"/>
+                    <apex:outputText value="{!EmailDateAddDays}" style="{!EmailDateAddDaysStyle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ServiceIdAssignField_HelpText}">
+                    <apex:outputLabel value="Service ID - Saved In Field"/>
+                    <apex:outputText value="{!ServiceIdAssignField}" title="{!ServiceIdAssignFieldTitle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ServiceIdCode_HelpText}">
+                    <apex:outputLabel value="Service ID Code" style="{!ServiceIdCodeStyle}"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Service_Id_Code__c}" style="{!ServiceIdCodeStyle}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1"/>
+                    <apex:outputText value="{!RelatedObjectStatusField1}" title="{!RelatedObjectStatusField1Title}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1" style="{!RelatedObjectStatusStyle1}"/>
+                    <apex:outputText value="{!RelatedObjectStatusField1AssignedValue}" style="{!RelatedObjectStatusStyle1}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2"/>
+                    <apex:outputText value="{!RelatedObjectStatusField2}" title="{!RelatedObjectStatusField2Title}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2" style="{!RelatedObjectStatusStyle2}"/>
+                    <apex:outputText value="{!RelatedObjectStatusField2AssignedValue}" style="{!RelatedObjectStatusStyle2}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3"/>
+                    <apex:outputText value="{!RelatedObjectStatusField3}" title="{!RelatedObjectStatusField3Title}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3" style="{!RelatedObjectStatusStyle3}"/>
+                    <apex:outputText value="{!RelatedObjectStatusField3AssignedValue}" style="{!RelatedObjectStatusStyle3}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!AssignedOwner_HelpText}">
+                    <apex:outputLabel value="Assigned To"/>
+                    <apex:outputPanel >
+                        <apex:outputText value="{!AssignedOwnerType}"/>
+                        :&nbsp;
+                        <apex:outputText value="{!AssignedOwnerName}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Conditional Field Assignments - Subject" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_1__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1" style="{!SubjectContainsField1Style}"/>
+                    <apex:outputText value="{!SubjectContainsField1}" title="{!SubjectContainsField1Title}" style="{!SubjectContainsField1Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1" style="{!SubjectContainsField1Style}"/>
+                    <apex:outputText value="{!SubjectContainsField1AssignedValue}" style="{!SubjectContainsField1Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_2__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2" style="{!SubjectContainsField2Style}"/>
+                    <apex:outputText value="{!SubjectContainsField2}" title="{!SubjectContainsField2Title}" style="{!SubjectContainsField2Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2" style="{!SubjectContainsField2Style}"/>
+                    <apex:outputText value="{!SubjectContainsField2AssignedValue}" style="{!SubjectContainsField2Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_3__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3" style="{!SubjectContainsField3Style}"/>
+                    <apex:outputText value="{!SubjectContainsField3}" title="{!SubjectContainsField3Title}" style="{!SubjectContainsField3Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3" style="{!SubjectContainsField3Style}"/>
+                    <apex:outputText value="{!SubjectContainsField3AssignedValue}" style="{!SubjectContainsField3Style}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Conditional Field Assignments - Body" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_1__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1" style="{!BodyContainsField1Style}"/>
+                    <apex:outputText value="{!BodyContainsField1}" title="{!BodyContainsField1Title}" style="{!BodyContainsField1Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1" style="{!BodyContainsField1Style}"/>
+                    <apex:outputText value="{!BodyContainsField1AssignedValue}" style="{!BodyContainsField1Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_2__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2" title="{!BodyContainsField2Title}" style="{!BodyContainsField2Style}"/>
+                    <apex:outputText value="{!BodyContainsField2}" style="{!BodyContainsField2Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2" style="{!BodyContainsField2Style}"/>
+                    <apex:outputText value="{!BodyContainsField2AssignedValue}" style="{!BodyContainsField2Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:outputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_3__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3" style="{!BodyContainsField3Style}"/>
+                    <apex:outputText value="{!BodyContainsField3}" title="{!BodyContainsField3Title}" style="{!BodyContainsField3Style}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3" style="{!BodyContainsField3Style}"/>
+                    <apex:outputText value="{!BodyContainsField3AssignedValue}" style="{!BodyContainsField3Style}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <br/>
+            <apex:pageBlockSection columns="2">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Created By" for="created_by"/>
+                    <apex:outputPanel >
+                        <apex:outputField value="{!ESFunction.CreatedById}"/>,&nbsp;
+                        <apex:outputField value="{!ESFunction.CreatedDate}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Last Modified By" for="modified_by"/>
+                    <apex:outputPanel >
+                        <apex:outputField value="{!ESFunction.LastModifiedById}"/>,&nbsp;
+                        <apex:outputField value="{!ESFunction.LastModifiedDate}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="editPageBlock" title="Target Object Rules" rendered="{!EditIsActive}">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!SaveFunctionDetails}" value="Save"/>
+                <apex:commandButton action="{!CancelEdit}" value="Cancel" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pagemessages />
+            <apex:pageBlockSection columns="2">
+                <apex:pageBlockSectionItem helpText="{!RulesName_HelpText}">
+                    <apex:outputLabel value="Rules Name"/>
+                    <apex:outputPanel >
+                        <apex:inputText value="{!ESFunction.Name}" size="30" maxlength="80"/>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!QueueName_HelpText}">
+                    <apex:outputLabel value="Unmatched Email Queue"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!ESFunction.ortoo_e2a__Queue_Id__c}" id="rejected_email_queue" size="1">
+                            <apex:selectOptions value="{!QueueOptions}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RecordInsert_HelpText}">
+                    <apex:outputLabel value="{!RelatedObjectLabel} - Object Insert"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Record_Insert__c}" size="1">
+                        <apex:selectOptions value="{!RecordInsertOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="editPageBlock,record_type"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedEmailMessageObjectName_HelpText}">
+                    <apex:outputLabel value="Custom Email Storage Object"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!ESFunction.ortoo_e2a__Email_Message_Object_Key_Prefix__c}" id="email_msg_object_prefix" size="1" rendered="{!RelatedEmailMessageObjectOptionsIsRendered}">
+                            <apex:selectOptions value="{!RelatedEmailMessageObjectOptions}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:outputText value="{!RelatedEmailMessageObjectName}" rendered="{!RelatedEmailMessageObjectNameIsRendered}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RecordType_HelpText}">
+                    <apex:outputLabel value="Insert Record Type"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Record_Type_Id__c}" id="record_type" size="1" disabled="{!RecordTypeIsDisabled}">
+                        <apex:selectOptions value="{!RecordTypeOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Field Assignments" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!SubjectAssignField_HelpText}">
+                    <apex:outputLabel value="Email Subject - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Assign_Field__c}" id="subject_assign_field" size="1">
+                        <apex:selectOptions value="{!EmailAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyAssignField_HelpText}">
+                    <apex:outputLabel value="Email Body - Saved In Field"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Assign_Field__c}" id="body_assign_field" size="1">
+                            <apex:selectOptions value="{!EmailAssignFieldOptions}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!HtmlBodyAssignField_HelpText}">
+                    <apex:outputLabel value="Email Html Body - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Html_Body_Assign_field__c}" id="html_body_assign_field" size="1">
+                        <apex:selectOptions value="{!EmailAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromAddressAssignField_HelpText}">
+                    <apex:outputLabel value="Email From-Address - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__From_Address_Assign_Field__c}" id="from_address_assign_field" size="1">
+                        <apex:selectOptions value="{!FromAddressAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromDomainAssignField_HelpText}">
+                    <apex:outputLabel value="Email From-Address Domain - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__From_Domain_Assign_Field__c}" id="from_domain_assign_field" size="1">
+                        <apex:selectOptions value="{!FromDomainAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From Name - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__From_Name_Assign_Field__c}" id="from_name_assign_field" size="1">
+                        <apex:selectOptions value="{!FromNameAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromFirstNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From First Name - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__From_First_Name_Assign_Field__c}" id="from_first_name_assign_field" size="1">
+                        <apex:selectOptions value="{!FromFirstNameAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!FromLastNameAssignField_HelpText}">
+                    <apex:outputLabel value="Email From Last Name - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__From_Last_Name_Assign_Field__c}" id="from_last_name_assign_field" size="1">
+                        <apex:selectOptions value="{!FromLastNameAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!ToAddressAssignField_HelpText}">
+                    <apex:outputLabel value="Email To-Address - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__To_Address_Assign_Field__c}" id="to_address_assign_field" size="1">
+                        <apex:selectOptions value="{!ToAddressAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!MatchedContactAssignField_HelpText}">
+                    <apex:outputLabel value="Matched Contact - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Matched_Contact_Assign_Field__c}" id="matched_contact_assign_field" size="1">
+                        <apex:selectOptions value="{!MatchedContactAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ContactMatchType_HelpText}">
+                    <apex:outputLabel value="Type of Contact Match"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Contact_Match_Type__c}" id="contact_match_type" size="1">
+                        <apex:selectOptions value="{!ContactMatchTypeOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!MatchedAccountAssignField_HelpText}">
+                    <apex:outputLabel value="Matched Account- Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Matched_Account_Assign_Field__c}" id="matched_account_assign_field" size="1">
+                        <apex:selectOptions value="{!MatchedAccountAssignFieldOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!EmailDateAssignField_HelpText}">
+                    <apex:outputLabel value="Email Date - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Email_Date_Assign_Field__c}" id="email_date_assign_field" size="1">
+                        <apex:selectOptions value="{!EmailDateAssignFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="email_date_add_days"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!EmailDateAddDays_HelpText}">
+                    <apex:outputLabel value="Date Adjustment Days"/>
+                    <apex:inputText value="{!EmailDateAddDays}" id="email_date_add_days" size="4" maxlength="4" disabled="{!EmailDateAddDaysIsDisabled}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ServiceIdAssignField_HelpText}">
+                    <apex:outputLabel value="Service ID - Saved In Field"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Service_Id_Assign_Field__c}" id="to_address_assign_field" size="1">
+                        <apex:selectOptions value="{!ServiceIdAssignFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="service_id_code"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!ServiceIdCode_HelpText}">
+                    <apex:outputLabel value="Service ID Code"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Service_Id_Code__c}" id="service_id_code" size="20" maxlength="20" disabled="{!ServiceIdCodeIsDisabled}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_1__c}" id="related_status_field_1" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="related_status_value_1"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_Value_1__c}" id="related_status_value_1" size="1">
+                        <apex:selectOptions value="{!StatusField1AssignedValueOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_2__c}" id="related_status_field_2" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="related_status_value_2"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_Value_2__c}" id="related_status_value_2" size="1">
+                        <apex:selectOptions value="{!StatusField2AssignedValueOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_3__c}" id="related_status_field_3" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="related_status_value_3"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!RelatedObjectStatusFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Object_Status_Field_Value_3__c}" id="related_status_value_3" size="1">
+                        <apex:selectOptions value="{!StatusField3AssignedValueOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!AssignedOwner_HelpText}">
+                    <apex:outputLabel value="Assigned To"/>
+                    <apex:outputPanel id="assigned_owner_panel">
+                        <apex:selectList value="{!ESFunction.ortoo_e2a__Assigned_Owner_Type__c}" size="1">
+                            <apex:selectOptions value="{!AssignedOwnerTypeOptions}"></apex:selectOptions>
+                            <apex:actionSupport event="onchange" reRender="assigned_owner_panel"/>
+                        </apex:selectList>
+                        &nbsp;
+                        <apex:inputField value="{!ESFunction.ortoo_e2a__Assigned_Owner__c}" rendered="{!ESFunction.ortoo_e2a__Assigned_Owner_Type__c != 'QUEUE'}"/>
+                        <apex:selectList value="{!ESFunction.ortoo_e2a__Assigned_Queue__c}" size="1" rendered="{!ESFunction.ortoo_e2a__Assigned_Owner_Type__c == 'QUEUE'}">
+                            <apex:selectOptions value="{!AssignedOwnerQueueOptions}"></apex:selectOptions>
+                        </apex:selectList>
+                        <apex:image value="{!$Resource.ortoo_e2a__red_asterisk}"/>
+                    </apex:outputPanel> 
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Conditional Field Assignments - Subject" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_1__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_1__c}" id="subject_contains_field_1" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="subject_contains_value_1"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_Value_1__c}" id="subject_contains_value_1" size="1">
+                        <apex:selectOptions value="{!SubjectContainsAssignedValue1Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_2__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_2__c}" id="subject_contains_field_2" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="subject_contains_value_2"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_Value_2__c}" id="subject_contains_value_2" size="1">
+                        <apex:selectOptions value="{!SubjectContainsAssignedValue2Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Subject Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Subject_Contains_Argument_3__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_3__c}" id="subject_contains_field_3" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="subject_contains_value_3"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Subject_Contains_Field_Value_3__c}" id="subject_contains_value_3" size="1">
+                        <apex:selectOptions value="{!SubjectContainsAssignedValue3Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!RelatedObjectLabel} Object Insert Conditional Field Assignments - Body" columns="2" collapsible="false" rendered="{!RecordInsertIsRendered}">
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_1__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_1__c}" id="body_contains_field_1" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="body_contains_value_1"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 1"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_Value_1__c}" id="body_contains_value_1" size="1">
+                        <apex:selectOptions value="{!BodyContainsAssignedValue1Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_2__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_2__c}" id="body_contains_field_2" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="body_contains_value_2"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 2"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_Value_2__c}" id="body_contains_value_2" size="1">
+                        <apex:selectOptions value="{!BodyContainsAssignedValue2Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsArgument_HelpText}">
+                    <apex:outputLabel value="IF Body Contains"/>
+                    <apex:inputText value="{!ESFunction.ortoo_e2a__Body_Contains_Argument_3__c}" size="45" maxlength="80"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem helpText="{!BodyContainsField_HelpText}">
+                    <apex:outputLabel value="Target Object Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_3__c}" id="body_contains_field_3" size="1">
+                        <apex:selectOptions value="{!StatusPicklistFieldOptions}"></apex:selectOptions>
+                        <apex:actionSupport event="onchange" reRender="body_contains_value_3"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!SubjectContainsFieldAssignedValue_HelpText}">
+                    <apex:outputLabel value="Value To Save In Picklist 3"/>
+                    <apex:selectList value="{!ESFunction.ortoo_e2a__Body_Contains_Field_Value_3__c}" id="body_contains_value_3" size="1">
+                        <apex:selectOptions value="{!BodyContainsAssignedValue3Options}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

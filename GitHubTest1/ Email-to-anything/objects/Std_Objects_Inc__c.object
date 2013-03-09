@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>List</customSettingsType>
+    <customSettingsVisibility>Protected</customSettingsVisibility>
+    <description>Standard objects incorporated</description>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Allow_Insert__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Enable allow record insert selection options</description>
+        <externalId>false</externalId>
+        <label>Enable Insert Allowed Select Options</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Email_Message_Object__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email message object name</description>
+        <externalId>false</externalId>
+        <label>Email Message Object</label>
+        <length>60</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Not_Allow_Insert__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Enable insert not allowed selection options</description>
+        <externalId>false</externalId>
+        <label>Enable Insert Not Allowed Select Option</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Object_Prefix__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Object prefix</description>
+        <externalId>false</externalId>
+        <label>Object Prefix</label>
+        <length>3</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Std Objects Incorporated</label>
+</CustomObject>

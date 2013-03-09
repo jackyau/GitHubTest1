@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>ACE Message Manager (AMM) Job Queue - Contains the pending and completed AMM jobs.  Each job has an ID, a message to send, a related list of recipients, job level instructions, and job level status information.</description>
+    <enableActivities>true</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Job_Completed_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the date and time that the AMM Processor completed processing the job.</description>
+        <externalId>false</externalId>
+        <label>Job Completed Time</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Job_Description__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is a text description of the job entry.  It is populated by the process that creates the job.  For example, it may be the subject line of the email.</description>
+        <externalId>false</externalId>
+        <label>Job Description</label>
+        <length>132</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Job_Email_Priority__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Email Priority</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Normal Priority</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>High Priority</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Low Priority</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Job_Priority__c</fullName>
+        <deprecated>false</deprecated>
+        <description>AMM will process pending jobs based on priority from 0-9.  The highest priority pending job is processed next.
+0 = Default Priority
+9 = Highest Priority</description>
+        <externalId>false</externalId>
+        <label>Job Priority</label>
+        <precision>1</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Job_Sender_ID__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The Job Sender is the user that initiated the AMM Job.  Each running instance of an AMM Processor is associated to 1 Job Sender.  The Job Sender ID is actually the salesforce user id of the sender.</description>
+        <externalId>false</externalId>
+        <label>Job Sender ID</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>Job_Queue</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Job_Start_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the date and time that the AMM Processor begins processing the job.</description>
+        <externalId>false</externalId>
+        <label>Job Start Time</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Job_Status_Message__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Summary status / error message related to the entire job - eg. &quot;Cannot connect to Exchange Server: &lt;server_name&gt;.&quot;</description>
+        <externalId>false</externalId>
+        <label>Job Status Message</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Job_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <description>When a new job is created, the creating process sets the status to New while it adds entries to the queue.  It then marks the job as &quot;Ready to Run&quot;.  The AMM Processor updates status to Running .. Completed.</description>
+        <externalId>false</externalId>
+        <label>Job Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>New</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Ready to Run</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Running</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Paused</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Job Aborted by User</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed with Errors</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Completed with No Errors</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Log_Activity_Against_List__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Determines if an Activity should be logged against a List in ALM.  This flag will be processed after AMM has finished processing the Job.</description>
+        <externalId>false</externalId>
+        <label>Log Activity Against List</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Log_Activity_As__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email Type field of Activity object. AMM asks how to log a successfully sent message (e.g Research Sent, Invitation, etc) and create a task for each contact upon successful completion.</description>
+        <externalId>false</externalId>
+        <label>Log Activity As</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Log_Activity__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Determines if an Activity should be logged for the message.  This flag will be processed after AMM has finished processing the Job.</description>
+        <externalId>false</externalId>
+        <label>Log Activity</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Message_Total__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the total number of messages created for the job through AMM.</description>
+        <externalId>false</externalId>
+        <label>Message Total</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Messages_Failed__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the total number of messages that failed to sent through AMM, or bounced back to AMM.</description>
+        <externalId>false</externalId>
+        <label>Messages Failed</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Messages_Sent__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the number of messages successfully through AMM.</description>
+        <externalId>false</externalId>
+        <label>Messages Sent</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Remove_Sent_Email__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Determines if the messages processing through the AMM Processor should be removed from the Job Sender&apos;s Sent Email mailbox.</description>
+        <externalId>false</externalId>
+        <label>Remove Sent Email</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Send_Summary_Email__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Determines if a Summary Email should be sent to the Job Sender.  This flag will be processed after AMM has finished processing the Job.</description>
+        <externalId>false</externalId>
+        <label>Send Summary Email</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Template_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Salesfoce ID of the Email Template for the Job.</description>
+        <externalId>false</externalId>
+        <label>Template ID</label>
+        <length>25</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Template__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(Template_ID__c, &quot;Click to go to Template&quot; )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Template</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>AMM Job Queue</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>Job_Status__c</columns>
+        <columns>Job_Priority__c</columns>
+        <columns>Job_Description__c</columns>
+        <columns>Job_Sender_ID__c</columns>
+        <columns>Job_Start_Time__c</columns>
+        <columns>Job_Completed_Time__c</columns>
+        <columns>Job_Status_Message__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All Jobs</label>
+    </listViews>
+    <listViews>
+        <fullName>completed_jobs</fullName>
+        <columns>NAME</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>Job_Status__c</columns>
+        <columns>Job_Priority__c</columns>
+        <columns>Job_Description__c</columns>
+        <columns>Job_Sender_ID__c</columns>
+        <columns>Job_Start_Time__c</columns>
+        <columns>Job_Completed_Time__c</columns>
+        <columns>Job_Status_Message__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Job_Status__c</field>
+            <operation>contains</operation>
+            <value>completed</value>
+        </filters>
+        <label>Completed Jobs</label>
+    </listViews>
+    <listViews>
+        <fullName>queued_running_jobs</fullName>
+        <columns>NAME</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>Job_Status__c</columns>
+        <columns>Job_Priority__c</columns>
+        <columns>Job_Description__c</columns>
+        <columns>Job_Sender_ID__c</columns>
+        <columns>Job_Start_Time__c</columns>
+        <columns>Job_Completed_Time__c</columns>
+        <columns>Job_Status_Message__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Job_Status__c</field>
+            <operation>contains</operation>
+            <value>New,Ready to Run,Running,Paused</value>
+        </filters>
+        <label>Queued and Running Jobs</label>
+    </listViews>
+    <nameField>
+        <displayFormat>{00000000}</displayFormat>
+        <label>Job Id</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>AMM Job Queues</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>
