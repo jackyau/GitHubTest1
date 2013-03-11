@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>ACE Message Manager message recipient list - Contains an entry for each recipient of the message associated with an AMM Job.</description>
+    <enableActivities>true</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Job__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Relates the Message Recipient list entry to the corresponding AMM Job it belongs to.</description>
+        <externalId>false</externalId>
+        <label>Job</label>
+        <referenceTo>AMM_Job_Queue__c</referenceTo>
+        <relationshipLabel>AMM Message Recipients</relationshipLabel>
+        <relationshipName>Job_Queue_Email_Recipients</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Order__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is the order of the message entry within a given job, and governs the sequence in which the AMM processor sends the message.</description>
+        <externalId>false</externalId>
+        <label>Order</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recipient_Email_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This is the email address to use for the recipient (since they may have multiple email addresses).  The process creating the job is responsible for populating this field.</description>
+        <externalId>false</externalId>
+        <label>Recipient Email Address</label>
+        <required>true</required>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recipient_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Text name of the recipient.  Created by the process which adds the job entries.  Is useful in cases where the email is being sent to a person that does have a salesforce contact record.</description>
+        <externalId>false</externalId>
+        <label>Recipient Name</label>
+        <length>132</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recipient__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>This is the link to the Contact record representing the Recipient.  Created by the process which adds the job entries.</description>
+        <externalId>false</externalId>
+        <label>Recipient</label>
+        <referenceTo>Contact</referenceTo>
+        <relationshipLabel>AMM Message Recipients</relationshipLabel>
+        <relationshipName>Job_Queue_Email_Recipients</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Sent_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Updated by the AMM Message Processor to indicate when the message was actually sent to this recipient.</description>
+        <externalId>false</externalId>
+        <label>Sent Time</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Status_Message__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Updated by the AMM Processor to contain the status or error message details (e.g. &quot;Invalid email address&quot;)</description>
+        <externalId>false</externalId>
+        <label>Status Message</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates that status of the recipient&apos;s list entry.  Initialized to pending by the process which creates the job, and is updated by the AMM Processor upon send attempt completion.</description>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Pending</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Sent</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Bounced</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Failed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>AMM Message Recipient</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Job__c</columns>
+        <columns>Order__c</columns>
+        <columns>Recipient__c</columns>
+        <columns>Recipient_Name__c</columns>
+        <columns>Recipient_Email_Address__c</columns>
+        <columns>Sent_Time__c</columns>
+        <columns>Status__c</columns>
+        <columns>Status_Message__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>{00000000}</displayFormat>
+        <label>Recipient</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>AMM Message Recipients</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+</CustomObject>

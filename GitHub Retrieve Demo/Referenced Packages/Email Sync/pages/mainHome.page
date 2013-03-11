@@ -1,0 +1,149 @@
+<apex:page id="container" controller="sync.mainController" sidebar="false" showHeader="false" standardStylesheets="true">
+    <style type="text/css" media="all">
+        body{
+            margin: 0; 
+            padding: 0; 
+            color: #000000;
+            background: none repeat scroll 0 0 transparent;
+        }
+        .in{
+            margin-top: 3px;
+        }
+        #div_container { 
+        	/* background: #CFEEF8; */
+        }
+    </style>
+        
+    <script language='javascript'>  
+        var syncButton = null;      // filled in by <script> code below
+        var isToken = false;        // gets filled in by <script> below
+        
+        var total_actions = 0;
+        var more_flag = false;
+        var more_wait_ms = 0;           // set to a certain # of milliseconds on return if there's a sync going on
+        
+        function change_domain(select_box) {
+            if ($(select_box).val() == 'other') {
+                $(select_box).hide();
+                $('#domain_input').show();
+            }
+        }
+    
+        function sync() {
+            if (isToken) {
+         		$('#spinner').css('visibility', 'visible');
+                // Do an AJAX call to the Apex code, via a hidden commandButton
+                syncButton.click();
+            }
+        }
+        
+        function sync_done() {
+            // Update the count of # of messages synced    
+            
+            if (more_flag) {
+                if (more_wait_ms != null && more_wait_ms > 0) {
+                    $('#spinner_msg').text('Fetching messages...');
+                    setTimeout("sync();", more_wait_ms);
+                } else {
+                    $('#spinner_msg').text('Syncing more messages...');
+                    sync();
+                }
+            } else {
+                if (total_actions > 0) {
+                    $('#spinner_msg').text('Done');
+                    $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'check.png')}");
+                } else {
+                    $('#spinner_msg').text('No new messages.');
+                    $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'bulb.png')}");
+                }   
+            }
+        }
+        
+        //$(document).ready doesn't seem to work for homepage components
+
+    </script>
+        
+    <script src="{!URLFOR($Resource.email_sync_ui, 'jquery-1.4.2.min.js')}"></script>
+    
+    <!-- Container div is needed to keep the background color everywhere correct -->
+    <div id="div_container" class='' style="width: 100%; height: 100%;">
+    
+        <apex:panelGroup id="inner_container">
+        
+            <apex:form rendered="{!NOT(IsToken)}">
+                <apex:outputText style="color: red;" value="{!Errmsg}"></apex:outputText>
+                <div class="in">
+                    Domain:
+                    <select name="domain_select" onchange="change_domain(this);">
+                        <option value="{!DefaultDomain}" selected="selected">{!DefaultDomain}</option>
+                        <option value="other">Other...</option>
+                    </select>
+                    <div id="domain_input" style='display: none;'>
+                        <apex:inputText style="width: 97%;" id="domain" value="{!Domain}" required="true"></apex:inputText>
+                    </div>
+                </div>      
+                <div class="in">Login: <br/><apex:inputText style="width: 97%;" id="username" value="{!Username}" required="true"></apex:inputText></div>
+                <div class="in">Password: <br/><apex:inputSecret style="width: 97%;" id="password" value="{!Password}" required="true"></apex:inputSecret></div>
+                <!-- <div class="in"><apex:commandButton action="{!login}" value="Login" id="loginButton"/></div> -->
+                <div class="in"><apex:commandButton oncomplete="window.location = '?core.apexpages.devmode.url=1';" action="{!login}" value="Login" id="loginButton"/></div>
+            </apex:form>   
+            
+            <apex:panelGroup rendered="{!IsToken}">
+            
+                <div id="spinner" style="height: 38px;">
+                    <br/>
+                    <img id='spinner_img' src="{!URLFOR($Resource.email_sync_ui, 'ajax-loader-small.gif')}" />
+                    <span id='spinner_msg' style='position: relative; top: -8px; left: 10px;'>Syncing new messages...</span>
+                </div>
+            
+                <apex:form >
+                    <!-- Hidden button, clicked by the Javascript above -->
+                    <apex:commandButton id="sync" style="display: none;" action="{!resetAndSyncAll}" value="Sync more messages" reRender="ajax_result" />
+                    <script>syncButton = document.getElementById("{!$Component.sync}"); </script>
+                </apex:form>
+                
+                <p>
+                    <apex:outputText value="{!SyncMsg1}"></apex:outputText>
+                    <div style='color: #999;' >{!Errmsg}</div>
+                    <apex:form rendered="{!(IsErrmsg)}">
+                        <div style='color: #ccc; margin-top: 15px;'>Please wait... saving data.</div>
+                        <script language='javascript'>
+                            var timer = setTimeout(function() {
+                                window.location='?core.apexpages.devmode.url=1';
+                            }, 4000);
+                        </script>
+                    </apex:form>
+                </p>
+                    
+                <!-- This table gets reRendered after each Ajax call -->
+                <apex:form id="ajax_result">
+                    <p> 
+                        Fetched <b id='total_crawled_emails'>{!TotalCrawledMsgs}</b> new message(s) <br/>
+                        Synced <b id='total_emails'>{!TotalEmails}</b> message(s) <br/>
+                        Created <b id='total_contacts'>{!TotalContacts}</b> contact(s) <br/>
+                        Created <b id='total_leads'>{!TotalLeads}</b> lead(s) <br/>
+                        Created <b id='total_cases'>{!TotalCases}</b> case(s)
+                    </p>
+                    
+                    <script type='text/javascript'>
+                        total_actions = {!TotalEmails} + {!TotalContacts} + {!TotalLeads} + {!TotalCases};
+                        more_flag = ('{!MoreFlag}'.toLowerCase() == 'true');
+                        more_wait_ms = {!MoreWaitMs};
+                        if (isToken) {
+                            sync_done();
+                        } else {
+                            // This happens once, on page load
+                            isToken = true;
+                            sync();
+                        }
+                    </script>
+                                    
+                </apex:form>
+                            
+            </apex:panelGroup>
+            
+        </apex:panelGroup>
+    
+    </div>
+    
+</apex:page>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object is a related list to the AMM Job Processor Control.  It contains a list of users to notify based on state changes to the AMM Processor record.</description>
+    <enableActivities>true</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>AMM_Processor__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Lookup to the application AMM Job Processor Control record.</description>
+        <externalId>false</externalId>
+        <label>AMM Processor</label>
+        <referenceTo>AMM_Processor_Control__c</referenceTo>
+        <relationshipName>AMM_Job_Processor_Control_Notifications</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Notification__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Determines under what conditions the user should be notified</description>
+        <externalId>false</externalId>
+        <label>Notification</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Alert if not running</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Alert if version updated</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Alert if stopped</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>User__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Link to the User who will be notified based on the AMM Job Processor Control record change.</description>
+        <externalId>false</externalId>
+        <label>User</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>AMM_Job_Processor_Control_Notifications</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <label>AMM Processor Notification</label>
+    <nameField>
+        <label>AMM Processor Notification Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>AMM Processor Notifications</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+</CustomObject>

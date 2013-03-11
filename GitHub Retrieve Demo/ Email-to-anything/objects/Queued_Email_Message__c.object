@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Queued email messages</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>Bcc_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Bcc addresses</description>
+        <externalId>false</externalId>
+        <label>Bcc Address</label>
+        <length>4000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Cc_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Cc addresses</description>
+        <externalId>false</externalId>
+        <label>Cc Address</label>
+        <length>4000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Email_Services_Function__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Email services function id</description>
+        <externalId>false</externalId>
+        <label>Email Service</label>
+        <referenceTo>Email_Services_Function__c</referenceTo>
+        <relationshipName>Queued_Emails</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Exception_Message__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Exception Message</description>
+        <externalId>false</externalId>
+        <label>Exception Message</label>
+        <length>5000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>From_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>From address</description>
+        <externalId>false</externalId>
+        <label>From Address</label>
+        <required>false</required>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>From_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>From name</description>
+        <externalId>false</externalId>
+        <label>From Name</label>
+        <length>1000</length>
+        <type>LongTextArea</type>
+        <visibleLines>2</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Has_Attachment__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Email has an attachment</description>
+        <externalId>false</externalId>
+        <label>Attachment</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Headers__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Internet message headers of incoming email</description>
+        <externalId>false</externalId>
+        <label>Headers</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Html_Body__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email body in html format</description>
+        <externalId>false</externalId>
+        <label>Html Body</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Incoming__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Email was received</description>
+        <externalId>false</externalId>
+        <label>Incoming</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Message_Date__c</fullName>
+        <defaultValue>NOW()</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Message date</description>
+        <externalId>false</externalId>
+        <label>Message Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Reason__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Reason for being queued</description>
+        <externalId>false</externalId>
+        <label>Reason Not Matched</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Unmatched Thread ID, Insert Not Allowed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Insert Not Allowed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Error</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Email Services Configuration Not Found</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Email Services Configuration Incomplete</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Matched Thread ID But No Custom Email Storage Object Defined</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Subject__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email subject</description>
+        <externalId>false</externalId>
+        <label>Subject</label>
+        <length>3000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Text_Body__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email plain text body</description>
+        <externalId>false</externalId>
+        <label>Text Body</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>To_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email recipient&apos;s address</description>
+        <externalId>false</externalId>
+        <label>To Address</label>
+        <length>4000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <label>e2a Unmatched Email</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>From_Address__c</columns>
+        <columns>Message_Date__c</columns>
+        <columns>Email_Services_Function__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>All1</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Subject</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>e2a Unmatched Emails</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>From_Address__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Message_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Reason__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Email_Services_Function__c</customTabListAdditionalFields>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>From_Address__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>From_Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Message_Date__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Reason__c</lookupDialogsAdditionalFields>
+        <searchFilterFields>NAME</searchFilterFields>
+        <searchFilterFields>Email_Services_Function__c</searchFilterFields>
+        <searchFilterFields>Message_Date__c</searchFilterFields>
+        <searchFilterFields>Reason__c</searchFilterFields>
+        <searchResultsAdditionalFields>From_Address__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Message_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Reason__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Email_Services_Function__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+    <webLinks>
+        <fullName>Match</fullName>
+        <availability>online</availability>
+        <description>Match to object</description>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>Match</masterLabel>
+        <openType>sidebar</openType>
+        <page>QueuedEmailMessageMatch</page>
+        <protected>false</protected>
+    </webLinks>
+</CustomObject>

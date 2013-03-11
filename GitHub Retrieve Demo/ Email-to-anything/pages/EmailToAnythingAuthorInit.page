@@ -1,0 +1,7 @@
+<apex:page controller="ortoo_e2a.EmailToAnythingAuthorInitController" id="thePage" action="{!PageInit}">
+    <apex:form id="theForm">
+        <apex:pageBlock >
+            <apex:pagemessages />
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

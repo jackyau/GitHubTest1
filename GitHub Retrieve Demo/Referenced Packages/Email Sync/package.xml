@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Email Sync</fullName>
+    <apiAccessLevel>Unrestricted</apiAccessLevel>
+    <description>CureCRM Email Sync automatically logs emails to Salesforce Leads, Contacts, Cases, Accounts, etc.</description>
+    <namespacePrefix>sync</namespacePrefix>
+    <types>
+        <members>JSONObject</members>
+        <members>asyncApex</members>
+        <members>caseController</members>
+        <members>contactController</members>
+        <members>leadController</members>
+        <members>mainController</members>
+        <members>opportunityController</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>CasePage</members>
+        <members>ContactPage</members>
+        <members>LeadPage</members>
+        <members>OpportunityPage</members>
+        <members>mainHome</members>
+        <members>mainTab</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>contactTrigger</members>
+        <members>leadTrigger</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>EmailSyncSettings__c.Token__c</members>
+        <members>EmailSyncSettings__c.UserEmail__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>EmailSyncSettings__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Email_Sync</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>Email Sync</members>
+        <name>HomePageComponent</name>
+    </types>
+    <types>
+        <members>EmailSyncSettings__c-Email Sync Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>email_sync_ui</members>
+        <name>StaticResource</name>
+    </types>
+    <version>27.0</version>
+</Package>
