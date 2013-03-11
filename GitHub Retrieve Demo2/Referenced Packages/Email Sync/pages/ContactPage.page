@@ -1,0 +1,59 @@
+<apex:page standardController="Contact" extensions="sync.contactController">
+    <!--  <apex:detail relatedList="false" />    -->   
+    
+    <!-- Identify ourselves to the curecrm sidebar widget -->
+    <div id='curecrm_syncer' style='display: none;'></div>
+    
+    <script src="{!URLFOR($Resource.email_sync_ui, 'jquery-1.4.2.min.js')}"></script>
+    
+    <script language='javascript'>
+    
+        var syncOneButton = null;                               // the DOM object of the hidden button
+        var url = null;                                         // the URL to set the iframe to, gets set by the <script> below
+                
+        function sync_one() {
+            syncOneButton.click();
+        }
+        
+        function set_main_view() {
+            // Set the main iframe to point to CureCRM
+            var main_view = $('#cure_main_view');
+            if (url != main_view.attr('src')) {
+                $('#cure_loading_view').hide();
+                main_view.attr('src', url).show();
+            }
+        }
+        
+        // On page load, adjust the elements to the size of this widget and start the sync process
+        $(document).ready(function() {
+            var height = $(window).height();
+            $('#cure_main_view').height(height);
+            $('#cure_loading_view').height(height);
+            sync_one();
+        });        
+    </script>
+    
+    <apex:form >
+        <!-- hidden button to perform an Ajax request -->
+        <apex:commandButton id="sync_one" style="display: none;" action="{!syncOne}" value="SyncOne" reRender="ajax_result" oncomplete="set_main_view();" />
+        <script>syncOneButton = document.getElementById("{!$Component.sync_one}"); </script>
+    </apex:form>
+    
+    <apex:form id="ajax_result">        
+        <script type='text/javascript'>
+            url = '{!JSENCODE(domain)}dashboard/?agent=salesforce&agent_version={!URLENCODE(Version)}&sf_type=contact&contact_email={!URLENCODE(contact.email)}&contact_first_name={!URLENCODE(contact.firstname)}&contact_last_name={!URLENCODE(contact.lastname)}&num_emails_synced={!TotalEmails}';
+            url += '&agent_url=' + escape(window.location);     // Pass in our own URL
+        </script>
+    </apex:form>
+            
+    <div id='cure_loading_view' class='loading' style='font-size: .9em; border: 0px;'>
+        <img id='spinner_img' width='24' height='24' src="{!URLFOR($Resource.email_sync_ui, 'ajax-loader-small.gif')}" />
+        <span id='spinner_msg'>Trying to sync new messages for {!contact.email}...</span>
+    </div>
+    
+    <iframe frameborder='0' allowtransparency='true' src='' style='display: none; width: 100%; overflow: auto;' id='cure_main_view'>
+    </iframe>
+    
+    
+    
+</apex:page>

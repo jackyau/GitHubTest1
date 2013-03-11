@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HomePageComponent xmlns="http://soap.sforce.com/2006/04/metadata">
+    <body>&lt;br&gt;&lt;script language=&quot;javascript&quot;&gt;    var 
+curecrm_previous_onload = window.onload;    function curecrm_onload() 
+{        if (typeof(curecrm_previous_onload) == &apos;function&apos;) {           
+ curecrm_previous_onload();        }        var syncer_exists = false;  
+      if (document.getElementById(&apos;curecrm_syncer&apos;) != null) 
+syncer_exists = true;        var iframes = 
+document.getElementsByTagName(&apos;iframe&apos;);        for (var i=0; i &lt; 
+iframes.length; i++) {            var title = iframes[i].title;          
+  if (title==&apos;LeadPage&apos; || title==&apos;CasePage&apos; || title==&apos;ContactPage&apos; || 
+title==&apos;OpportunityPage&apos;)                syncer_exists = true;       
+ }        if (!syncer_exists) {            var iframe = 
+document.getElementById(&apos;mainHome&apos;);           
+ iframe.setAttribute(&apos;src&apos;, 
+&apos;/apex/sync__mainHome?core.apexpages.devmode.url=1&apos;);           
+ iframe.style.display = &apos;block&apos;;        }    }    window.onload = 
+curecrm_onload;&lt;/script&gt;&lt;iframe style=&quot;display: none;&quot; src=&quot;&quot; id=&quot;mainHome&quot; name=&quot;mainHome&quot; allowtransparency=&quot;true&quot; frameborder=&quot;0&quot; height=&quot;150&quot; scrolling=&quot;no&quot; width=&quot;100%&quot;&gt;&lt;/iframe&gt;</body>
+    <pageComponentType>htmlArea</pageComponentType>
+    <width>narrow</width>
+</HomePageComponent>

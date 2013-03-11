@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>List</customSettingsType>
+    <customSettingsVisibility>Protected</customSettingsVisibility>
+    <description>Email message object field description</description>
+    <enableEnhancedLookup>false</enableEnhancedLookup>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Field_Length__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Field Length</description>
+        <externalId>false</externalId>
+        <label>Field Length</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Field_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Field Type</description>
+        <externalId>false</externalId>
+        <label>Field Type</label>
+        <length>20</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Message Object Field Description</label>
+</CustomObject>

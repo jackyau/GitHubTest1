@@ -1,0 +1,13 @@
+<apex:page >
+  <h1>AMM Processor install</h1>
+  <p>To use the AMM Processor download the following links and rename them adding a .rar extension. 
+  Use WinRAR to decompress them and run the extracted installer.</p>
+  
+  <h3>AMM 32 bits</h3><br/>
+  <a href="{!$Resource.T1C_AMM__ProcessorPart1}">Processor (Part 1) 32 bits version</a><br/>
+  <a href="{!$Resource.T1C_AMM__ProcessorPart2}">Processor (Part 2) 32 bits version</a><br/><br/>
+  
+  <h3>AMM 64 bits</h3><br/>
+  <a href="{!$Resource.T1C_AMM__Processor64bitsPart1}">Processor (Part 1) 64 bits version</a><br/>
+  <a href="{!$Resource.T1C_AMM__Processor64bitsPart2}">Processor (Part 2) 64 bits version</a>
+</apex:page>

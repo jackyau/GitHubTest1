@@ -1,0 +1,708 @@
+<apex:page id="container" controller="sync.mainController" sidebar="true" showHeader="true" standardStylesheets="true">
+    
+    <!-- Identify ourselves to the curecrm sidebar widget -->
+    <div id='curecrm_syncer' style='display: none;'></div>
+    
+    <style type="text/css" media="all">
+        .in{
+            margin-top: 5px;
+        }
+        
+        .head_bar {
+            height: 24px; 
+            margin-top: 5px; 
+            background: url(/img/bgTop.gif) repeat-x; 
+            padding: 5px; 
+            border-bottom: 2px solid #666;
+        }
+        
+        .head_bar h1 {
+            font-size: 1.3em;
+        }
+        
+        /* tables */
+        table.tablesorter {
+            font-family:arial;
+            background-color: #CDCDCD;
+            margin:10px 0pt 15px;
+            font-size: 8pt;
+            width: 100%;
+            text-align: left;
+        }
+        table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+            background-color: #e6EEEE;
+            border: 1px solid #FFF;
+            font-size: 8pt;
+            padding: 4px;
+        }
+        table.tablesorter thead tr .header {
+            background-image: url(/static/images/tablesorter/bg.gif);
+            background-repeat: no-repeat;
+            background-position: center right;
+            cursor: pointer;
+        }
+        table.tablesorter tbody td {
+            color: #3D3D3D;
+            padding: 4px;
+            background-color: #FFF;
+            vertical-align: top;
+        }
+        table.tablesorter tbody tr.odd td {
+            background-color:#F0F0F6;
+        }
+        table.tablesorter thead tr .headerSortUp {
+            background-image: url(/static/images/tablesorter/asc.gif);
+        }
+        table.tablesorter thead tr .headerSortDown {
+            background-image: url(/static/images/tablesorter/desc.gif);
+        }
+        table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+            background-color: #8dbdd8;
+        }
+        .help_step {
+            color: #666;
+            text-decoration: none;
+        }
+        .help_step_selected {
+            color: #000;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        
+    </style>
+    
+    <script src="{!URLFOR($Resource.email_sync_ui, 'jquery-1.4.2.min.js')}"></script>
+        
+    <script language='javascript'>
+            
+        var poll = null;
+        
+        // All of these get filled in by <script> below
+        var loginButton = null;
+        var registerButton = null;   
+        var syncButton = null;  
+        var usernameInput = null; 
+        var isToken = false;
+        var total_actions = 0;
+        var crawl_task_success = true;      // was CureCRM able to do a crawl?
+        var crawl_task_id = null;
+        var crawl_task_msg = null;          // if crawl failed, this is the error message
+        var crawl_task_icon = null;
+        var crawl_task_redirect_to = null;
+        var total_crawled_msgs = 0;
+        var curecrm_login_url = null;       // url to view messages on CureCRM
+        var base_url = '';                  // base url of user's account on CureCRM
+        
+        function show_help() {
+            var newWindow = window.open("http://curecrm.com/sync/info/salesforce-automation/help/", "SalesforceHelp", 
+            "menubar=0,width=900,height=650,toolbar=0,navigation=0,status=0,location=0,directories=0,scrollbars=1");
+            newWindow.focus();
+        }
+        
+        function show_service_popup() {
+            var service_name = $('#service_select_link').parent().find('select').val();
+            var newWindow = window.open("https://curecrm.com/sync/info/services/"+service_name, "ServiceInfo", 
+            "menubar=0,width=800,height=440,toolbar=0,navigation=0,status=0,location=0,directories=0,scrollbars=1");
+            newWindow.focus();
+        }
+        
+        function show_video() {
+            var newWindow = window.open("https://curecrm.com/sync/info/salesforce/video/install/", "SalesforceHelp", 
+            "menubar=0,width=800,height=400,toolbar=0,navigation=0,status=0,location=0,directories=0,scrollbars=1");
+            newWindow.focus();
+        }
+                
+        function change_domain(select_box) {
+            if ($(select_box).val() == 'other') {
+                $(select_box).hide();
+                $('#domain_input').show(); 
+            }
+        }
+            
+        function reset_domain(select_box) {
+            document.getElementById("domain_input").style.display = 'none';
+            select_box.style.display = 'block';
+            select_box.value = '{!JSENCODE(DefaultDomain)}';          
+        }
+        
+        function show_terms() {
+            var newWindow = window.open('{!DefaultDomain}info/terms/terms/', 'terms',
+                    'width=600,height=400,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+            newWindow.focus();
+        }
+                
+        function show_login(username) {
+            $('#login_form').show();
+            $('#register_view').hide();
+            $('#register_section').hide();
+            usernameInput.value = username;
+        }
+        
+        function show_message(msg) {
+            document.getElementById('status_message').style.display = 'block';
+            document.getElementById('status_message').innerHTML = "<img id='spinner_status_img' src=\"{!URLFOR($Resource.email_sync_ui, 'ajax-loader-small.gif')}\" /> " + msg;
+            var e = document.getElementById('error_message');
+            if (e != null) {
+                e.style.display = 'none';
+            }
+            var e = document.getElementById('info_message');
+            if (e != null) {
+                e.style.display = 'none';
+            }
+        }
+        
+        function hide_message(msg) {
+            document.getElementById('status_message').style.display = 'none';
+            document.getElementById('status_message').innerHTML = '';
+            var e = document.getElementById('info_message');
+            if (e != null) {
+                e.innerHTML = '';
+                e.style.display = 'none';
+            }
+        }
+        
+        function setup_redirect () {
+            var newWindow = window.open('/0rp/e?SiteName=Email_Sync&EndpointUrl={!URLENCODE(Domain)}&retURL=%2Fapex%2FmainTab%3Fremote_site_success%3D1', 'docs',
+                'width=800,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+            );
+            newWindow.focus();
+        }
+        
+        // thanks to http://community.salesforce.com/sforce/board/message?board.id=Visualforce&message.id=8621
+        function login_on_enter(e) {
+            
+            var keynum = 0;
+            
+            if (window.event) {
+                keynum = window.event.keyCode;
+            } else if(e.which) {
+              keynum = e.which;
+            }
+                        
+            if (keynum == 13) {
+                loginButton.click();
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        function register_on_enter(e) {
+            
+            var keynum = 0;
+            
+            if (window.event) {
+                keynum = window.event.keyCode;
+            } else if(e.which) {
+                keynum = e.which;
+            }
+                        
+            if (keynum == 13) {
+                registerButton.click();
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        var more_flag = false;          // set to true on ajax return if there's more messages to be synced
+        var more_wait_ms = 0;           // set to a certain # of milliseconds on return if there's a sync going on
+        function sync() {
+            if (isToken) {
+                $('#spinner').show();
+                // Do an AJAX call to the Apex code, via a hidden commandButton
+                syncButton.click();
+            }
+        }
+        
+        function sync_done() {
+            // Add the new table rows to the existing table
+            var new_rows = $('#actions_new_body .row_to_copy');
+            if (new_rows.length > 0) {
+                total_actions += new_rows.length;
+                $('#actions').show();
+                $('#spinner_msg').text('Done.');
+            }
+            new_rows.appendTo('#actions_body');
+            
+            var fetched_msg = '';
+            if (total_crawled_msgs > 0) {
+                fetched_msg += 'Fetched ' + total_crawled_msgs + ' potential new message';
+                if (total_crawled_msgs > 1)
+                    fetched_msg += 's';
+                fetched_msg += ' from your mailbox.';
+            } else {
+                fetched_msg = 'Fetching messages from your mailbox...';
+            }
+            
+            if (more_flag) {
+                if (more_wait_ms != null && more_wait_ms > 0) {
+                    $('#spinner_msg').text(fetched_msg);
+                    setTimeout("sync();", more_wait_ms);
+                } else {
+                    $('#spinner_msg').text('Syncing messages...');
+                    sync();
+                }
+            } else {
+                if (crawl_task_success) {
+                    if (total_actions > 0) {
+                        $('#spinner_msg').text('Done!');
+                        $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'check.png')}");
+                    } else {
+                        $('#spinner_msg').text('No new messages.');
+                        $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'bulb.png')}");
+                    }  
+                } else {
+                    // Crawl failed on the server side, display an error message
+                    $('#spinner_msg').text(crawl_task_msg);
+                    if (crawl_task_icon == 'error') {
+                        $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'error.png')}");
+                    } else if (crawl_task_icon == 'info') {
+                        $('#spinner_img').attr('src', "{!URLFOR($Resource.email_sync_ui, 'bulb.png')}");
+                    }
+                    
+                    // Take them to a page on the site for setting up their email settings                  
+                    show_dashboard(curecrm_login_url + '&next=' + encodeURIComponent(crawl_task_redirect_to));                     
+                }   
+            }
+        }
+        
+        function enable_dashboard_button() {
+            // Show a button they can click to open up CureCRM
+            $('#curecrm_button').removeAttr('disabled');
+        }
+        
+        function show_dashboard(url) {
+            // Show the iframe, pointing it to a specific URL if given
+            var main_view = $('#main_view');
+            var current_src = main_view.attr('src');
+            
+            if (typeof(url) == 'undefined') {
+                // URL not given, point the iframe to the CureCRM login page if it's not set
+                if (typeof(current_src) == 'undefined' || current_src == '') {
+                    main_view.attr('src', curecrm_login_url);
+                }
+            } else {
+                // Point the iframe to a specific URL
+                if (url != current_src) {
+                    // Show the view, setting the src if necessary
+                    main_view.attr('src', url);
+                }       
+            }
+                    
+            main_view.show();
+            $('#curecrm_button').val('- Dashboard');
+        }
+           
+        function hide_dashboard() {
+            // Hide the iframe
+            $('#main_view').hide();
+            $('#curecrm_button').val('+ Dashboard');       
+        }
+             
+        function toggle_dashboard() {
+            if ($('#main_view').is(":visible")) {
+                hide_dashboard();
+            } else {
+                show_dashboard();
+            }
+        }
+        
+        // bulb.png courtesy of http://www.webdesignerdepot.com/2009/03/200-free-exclusive-icons-siena/
+        // check.png courtesy of http://vistaico.com
+        
+        var Help = this.Help = {
+            showing: false,
+            
+            show: function() {
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_1').addClass('help_step_selected');
+                $('#help_section').show(); 
+                $('.help_expand').val('- Help').show();
+                Help.showing = true;        
+            },
+            
+            hide: function() {
+                $('#help_section').hide();  
+                $('.help_expand').val('+ Help').show();
+                Help.showing = false;           
+            },
+            
+            // Call this when the "+ Help" button is clicked
+            toggle: function() {
+                if (Help.showing) {
+                    Help.hide();
+                } else {
+                    Help.show();
+                }
+            },  
+                            
+            // Step 1
+            instructions: function() {
+                show_help();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_2').addClass('help_step_selected');               
+            },
+                            
+            // Step 2
+            homepage: function() {
+                var newWindow = window.open(
+                    '/02T?retURL=%2Fui%2Fsetup%2FSetup%3Fsetupid%3DHome&setupid=HomePageLayouts', 'homepage', 
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_3').addClass('help_step_selected');
+            },
+            
+            // Step 3
+            allpages: function() {
+                var newWindow = window.open(
+                    '/ui/setup/org/UserInterfaceUI?setupid=UserInterface&retURL=%2Fui%2Fsetup%2FSetup%3Fsetupid%3DCustomize&customSidebar=1', 'allpages', 
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_4').addClass('help_step_selected');           
+            },
+            
+            // Step 4
+            leads: function() {
+                var newWindow = window.open(
+                    '/ui/setup/layout/PageLayouts?type=Lead&setupid=LeadLayouts&retURL=/ui/setup/Setup%3Fsetupid%3DLead', 'lead',
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_5').addClass('help_step_selected');
+            },
+            
+            // Step 5
+            contacts: function() {
+                var newWindow = window.open(
+                    '/ui/setup/layout/PageLayouts?type=Contact&setupid=ContactLayouts&retURL=/ui/setup/Setup%3Fsetupid%3DContact', 'contact', 
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_6').addClass('help_step_selected');
+            },
+            
+            // Step 6
+            opportunities: function() {
+                var newWindow = window.open(
+                    '/ui/setup/layout/PageLayouts?type=Opportunity&setupid=OpportunityLayouts&retURL=/ui/setup/Setup%3Fsetupid%3DOpportunity', 'opportunity', 
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_7').addClass('help_step_selected');
+            },
+            
+            // Step 7
+            cases: function() {
+                var newWindow = window.open(
+                    '/ui/setup/layout/PageLayouts?type=Case&setupid=CaseLayouts&retURL=/ui/setup/Setup%3Fsetupid%3DCase', 'case', 
+                    'width=1000,height=600,status=0,location=0,menubar=0,directories=0,scrollbars=1'
+                );
+                newWindow.focus();
+                $('.help_step').removeClass('help_step_selected');
+                $('#help_step_8').addClass('help_step_selected');
+            },
+
+            // Step 7
+            done: function() {
+                $('.help_step').removeClass('help_step_selected');
+                Help.hide();
+            }
+        }
+        
+        // On page load, start the sync process
+        $(document).ready(function() {
+            sync();
+        });
+        
+    </script>
+           
+    <apex:panelGroup id="inner_container">
+            
+        <script>
+            isToken = ('{!IsToken}' == 'true');
+        </script>
+        
+        <apex:form rendered="{!IsRemoteSiteError}">
+            <div id='remote_site_message' style='padding: 5px; background: #ffb8b8; border: 1px solid #f00; margin-bottom: 10px;'>      
+                You must add <b>{!Domain}</b> to your Remote Site Settings.
+                <input type='button' onclick='setup_redirect();' value='Click here, then Save' /><br/>
+                <input type='button' onclick='window.location.reload();' value='Continue >>' />
+            </div>
+            <div>
+                <a href='#' onclick='show_video(); return false;'>
+                    <img src='https://curecrm.com/static/sync/uploads/screencast/net/video_preview.png' />
+                </a>
+            </div>
+        </apex:form>
+           
+        <apex:form >
+            <!-- The help form is always rendered, but use display: none; to hide it and use Javascript to show it -->
+            <div id='help_section' style='display: none; padding: 5px; background: #ffb8b8; border-bottom: 2px solid #f00; margin-bottom: 10px;'>       
+                Follow these steps to get started with Email Sync:
+                
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_1'>Step 1:</span> <input id='help_instructions' type='button' onclick='Help.instructions(); return false;' value='Read & follow the customization guide' />
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_2'>Step 2:</span> <input id='help_homepage' type='button' onclick='Help.homepage(); return false;' value="Click to add the Email Sync widget to the Home page" />
+                <span class='help_step'>recommended</span>
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_3'>Step 3:</span> <input id='help_homepage' type='button' onclick='Help.allpages(); return false;' value="Click to enable the Email Sync widget on all pages" />
+                <span class='help_step'>recommended</span>
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_4'>Step 4:</span> <input id='help_leads' type='button' onclick='Help.leads(); return false;' value="Click to add the Email Sync widget to the Lead page layout" />
+                <span class='help_step'>optional</span>
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_5'>Step 5:</span> <input id='help_contacts' type='button' onclick='Help.contacts(); return false;' value="Click to add the Email Sync widget to the Contact page layout" />
+                <span class='help_step'>optional</span>
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_6'>Step 6:</span> <input id='help_opportunities' type='button' onclick='Help.opportunities(); return false;' value="Click to add the Email Sync widget to the Opportunity page layout" />
+                <span class='help_step'>optional</span>
+                <br/><br/>              
+                
+                <span class='help_step' id='help_step_7'>Step 7:</span> <input id='help_cases' type='button' onclick='Help.cases(); return false;' value="Click to add the Email Sync widget to the Case page layout" />
+                <span class='help_step'>optional</span>
+                <br/><br/>
+                
+                <span class='help_step' id='help_step_8'>Step 8:</span> <input id='help_done' type='button' onclick='Help.done(); return false;' value="I have added the the Email Sync widgets to my page layouts.  Continue >>" />
+            </div>
+            <script>
+                /*
+                if ("{!HelpCompleted}" == "true") {
+                    help_completed = true;
+                } else {
+                    help_completed = false;
+                    Help.show();
+                }
+                */
+            </script>
+        </apex:form>
+                
+        <apex:form rendered="{!AND(NOT(IsRemoteSiteError),IsErrmsg)}">
+            <div id='error_message' style='padding: 5px; background: #ffb8b8; border-bottom: 2px solid #f00; margin-bottom: 10px;'>        
+                <img src='{!URLFOR($Resource.email_sync_ui, "error.png")}'/> {!Errmsg}
+            </div>  
+        </apex:form>
+        
+        <apex:form rendered="{!AND(NOT(IsRemoteSiteError),IsInfomsg)}">
+            <div id='info_message' style='padding: 5px; background: #b8ffb8; border-bottom: 2px solid #0f0; margin-bottom: 10px;'>     
+                {!Infomsg}
+            </div>  
+        </apex:form>
+        
+        <apex:form rendered="{!AND(NOT(IsRemoteSiteError),IsRegmsg)}">
+            <div id='reg_message' style='padding: 5px; background: #b8ffb8; border-bottom: 2px solid #0f0; margin-bottom: 10px;'>     
+                {!Regmsg}
+            </div>  
+        </apex:form>
+        
+       <apex:form rendered="{!AND(NOT(IsRemoteSiteError), IsToken)}">
+            <input class='help_expand' type='button' name='' style='float:right; margin: 6px 6px 0px 0px;' onclick='Help.toggle();' value='+ Help'/>
+            <input type='button' id='curecrm_button' style='float:right; margin: 6px 6px 0px 0px;' disabled='disabled' value='+ Dashboard' onclick='toggle_dashboard(); return false;'/>
+            <div id="spinner" class='head_bar' style="display: none;">
+                <img id='spinner_img' src="{!URLFOR($Resource.email_sync_ui, 'ajax-loader-small.gif')}" />
+                <span id='spinner_msg' style='position: relative; top: -8px; left: 10px;'>Trying to sync new messages...</span>
+            </div>
+            <iframe frameborder='0' allowtransparency='true' src='' style='display: none; border: 1px solid #ccc; width: 100%; height: 450px; overflow: auto;' id='main_view' name='main_view'>
+            </iframe>
+        </apex:form>
+        
+    </apex:panelGroup>
+            
+    <apex:panelGroup id="inner_container_2">
+        <apex:form id="loginForm" rendered="{!AND(NOT(IsRemoteSiteError),NOT(IsToken))}">
+            
+            <div id='status_message' style='padding: 5px; background: #eee; font-weight: bold; border-bottom: 2px solid #ccc; margin-bottom: 10px; display: none;'>       
+            </div>
+            
+            <div id='login_form'>
+                <div style='margin-bottom: 10px;' class='head_bar'>
+                    <input class='help_expand' type='button' name='' style='float:right; margin: 3px 3px 0px 0px;' onclick='Help.toggle();' value='+ Help'/>
+                    <h1>Login if you have a CureCRM <i>Email Sync</i> account</h1>
+                </div>
+                        
+                <div class="in">
+                    Domain:
+                    <select name="domain_select" onchange="change_domain(this);" style='font-size: .9em;'>
+                        <option value="{!DefaultDomain}" selected="selected">{!DefaultDomain}</option>
+                        <option value="other">Other...</option>
+                    </select>
+                    <div id="domain_input" style='display: none;'>
+                        <apex:inputText id="domain" value="{!Domain}" required="true"></apex:inputText>
+                    </div>
+                </div>
+                <div class="in">Email address: <br/>
+                    <apex:inputText id="username" value="{!Username}" required="true"></apex:inputText>
+                    <script>usernameInput = document.getElementById("{!$Component.username}"); </script>
+                </div>
+                <div class="in">Password: <br/>
+                    <apex:inputSecret id="password" value="{!Password}" onkeydown="return login_on_enter(event);" required="true"></apex:inputSecret>
+                    <span style='margin-left: 5px;'><a href='{!HTMLENCODE(domain)}login/forgot/' target='_blank'>Forgot your password?</a></span> 
+                </div>
+
+                <div class="in">
+                    <apex:commandButton reRender="footer_section,help_section,inner_container,inner_container_2" action="{!login}" value="Login" id="loginButton" oncomplete="sync();" onclick="show_message('Logging in...');"/>
+                    <script>loginButton = document.getElementById("{!$Component.loginButton}"); </script>
+                </div>
+                <div style='height: 20px;'></div>
+            </div>
+        </apex:form>
+        
+        <apex:form id="registerForm" rendered="{!AND(NOT(IsRemoteSiteError),NOT(IsToken))}">
+           
+            <div class='head_bar' id='register_section'>
+                <h1>Register for CureCRM <i>Email Sync</i></h1>                
+            </div>
+            
+            <div style='display:; margin-bottom: 10px;' id='register_container'>
+                
+                <div id='register_fields'>
+                   
+                    <div class="in"> Select a <b>service level</b>: <br/>
+                        <apex:selectList id="service_select" size="1" style="max-width: 300px; font-size: .9em;" value="{!RegisterService}">
+                            <apex:selectOptions value="{!RegisterServiceList}"/>
+                        </apex:selectList>
+                        <a id='service_select_link' href='#' onclick='show_service_popup(); return false;'>?</a> 
+                    </div>
+                    
+                    <div class="in">Your work <b>email address</b>: <br/>
+                        <apex:inputText id="registerUsername" value="{!RegisterUsername}" required="true" onkeydown="return register_on_enter(event);"></apex:inputText>
+                    </div>                    
+            
+                    <div class="in">
+                        <label>
+                            <apex:inputCheckbox value="{!RegisterTermsAgree}"/>I have read and agree to the <a href='#' onclick='show_terms(); return false;'>terms of service</a>.
+                        </label>
+                    </div>
+                    
+                    <br/>        
+                    <apex:commandButton style="margin-left: 5px;" reRender="footer_section,help_section,inner_container,inner_container_2" action="{!register}" onclick="show_message('Registering...');" oncomplete="sync();" value="Register" id="registerButton"/>
+                    <script>registerButton = document.getElementById("{!$Component.registerButton}"); </script>
+    
+                    <div style='clear:right;'></div>
+                </div>
+                
+            </div>
+
+        </apex:form>
+        
+        <apex:panelGroup rendered="{!IsToken}">
+        
+            <apex:outputText value="{!SyncMsg1}"></apex:outputText>
+            <div style='color: #999;' >{!Errmsg}</div>
+            <apex:form rendered="{!(IsErrmsg)}">
+                <div style='color: #ccc; margin-top: 15px;'>Please wait... saving data.</div>
+                <script language='javascript'>
+                    var timer = setTimeout(function() {
+                        window.location='?core.apexpages.devmode.url=1';
+                    }, 4000);
+                </script>
+            </apex:form>
+            
+            <!-- 
+            <p><apex:outputText value="{!SyncMsg2}"></apex:outputText></p>
+            <p><apex:outputText value="{!SyncMsg3}"></apex:outputText></p>
+            <apex:outputText style="color: red;" value="{!Errmsg}"></apex:outputText><br/>
+            -->
+            
+            <apex:form id="actions_table">
+                
+                <apex:commandButton id="sync" style="display: none;" action="{!resetAndSyncAll}" value="Sync more messages" reRender="ajax_result" oncomplete="sync_done();" />
+                <script>syncButton = document.getElementById("{!$Component.sync}"); </script>
+                
+                <table class='tablesorter' style="display: none;" id="actions" border="0" cellpadding="0" cellspacing="1"> 
+                    <thead id="actions_head">
+                        <tr>
+                            <th><b>Reference</b></th>
+                            <th><b>Data</b></th>
+                            <th><b>Action</b></th>
+                        </tr>
+                    </thead>
+                    <tbody id="actions_body">
+                    </tbody>
+                </table>
+            </apex:form>
+            
+            <!-- This table gets reRendered, and then added to the table above via Javascript -->
+            <apex:form id="ajax_result">
+                <table style="display: none;">
+                    <tbody id="actions_new_body">
+                        <apex:repeat value="{!Actions}" var="a"> 
+                            <!--  Each action may produce one or two rows in the table -->
+                            <!--  Only the ones with class row_to_copy should get displayed -->
+                            <tr class='{!IF(ISNULL(a.ref), "", "row_to_copy")}'>
+                                <td>
+                                    <a target='_blank' style='text-decoration: none;' class='{!a.ref_type}Mru' href='/{!a.ref.id}'>
+                                        <img border='0' class='mruIcon' title='{!a.ref_display_type}: {!a.ref_text}' alt='{!a.ref_display_type}: {!a.ref_text}' src='/s.gif' />
+                                        <span style='text-decoration: underline; position: relative; top: -4px;' class='mruText'>{!a.ref_text}</span>
+                                    </a>
+                                </td>                              
+                                <td><a target='_blank' href='/{!a.data_id}'>{!a.data_text}</a></td>
+                                <td>{!a.action_text}</td>
+                            </tr>
+                            <tr class='{!IF(ISNULL(a.ref2), "", "row_to_copy")}'>
+                                <td>
+                                    <a target='_blank' style='text-decoration: none;' class='{!a.ref2_type}Mru' href='/{!a.ref2.id}'>
+                                        <img border='0' class='mruIcon' title='{!a.ref2_display_type}: {!a.ref2_text}' alt='{!a.ref2_display_type}: {!a.ref2_text}' src='/s.gif' />
+                                        <span style='text-decoration: underline; position: relative; top: -4px;' class='mruText'>{!a.ref2_text}</span>
+                                    </a>
+                                </td>                              
+                                <td><a target='_blank' href='/{!a.data_id}'>{!a.data_text}</a></td>
+                                <td>{!a.action_text}</td>
+                            </tr>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+                <script type='text/javascript'>
+                    total_crawled_msgs = {!TotalCrawledMsgs};
+                    crawl_task_success = ('{!CrawlTaskSuccess}'.toLowerCase() == 'true');
+                    crawl_task_id = '{!JSENCODE(CrawlTaskId)}';
+                    crawl_task_msg = '{!JSENCODE(CrawlTaskMsg)}';
+                    crawl_task_icon = '{!JSENCODE(CrawlTaskIcon)}';
+                    crawl_task_redirect_to = '{!JSENCODE(CrawlTaskRedirectTo)}';                    
+                    more_flag = ('{!MoreFlag}'.toLowerCase() == 'true');
+                    more_wait_ms = {!MoreWaitMs};
+                </script>
+            </apex:form>
+                                               
+            <script type='text/javascript'>
+                curecrm_login_url = '{!JSENCODE(domain)}login/?token={!JSENCODE(webtoken)}&agent=salesforce&agent_url=' + encodeURIComponent(window.location);          
+                base_url = '{!JSENCODE(BaseURL)}';
+                enable_dashboard_button();
+            </script>
+           
+        </apex:panelGroup>
+    </apex:panelGroup>
+    
+    <apex:panelGroup id="footer_section">
+        
+        <div style="padding: 10px; border-top: 1px solid #666; background: #fff; font-size: .9em; text-align: right; ">
+            
+            <apex:form >
+                <a href='#' onclick="show_help(); return false;">Salesforce Documentation</a>, <a href='http://curecrm.com/sync/info/salesforce-automation/tips/' target='_blank'>Tips and tricks</a> &amp; <a target='_blank' href='http://curecrm.com/sync/info/salesforce-automation/faq/'>Wiki (FAQ)</a>
+            </apex:form>
+            
+            <apex:panelGroup rendered="{!IsToken}">
+                <apex:form rendered="{!NOT(IsDemo)}">
+                    <apex:commandLink action="{!Logout}" value="Logout" oncomplete="window.location = '?core.apexpages.devmode.url=1';"></apex:commandLink>
+                </apex:form>
+            </apex:panelGroup>
+        </div>
+                
+    </apex:panelGroup>
+
+</apex:page>

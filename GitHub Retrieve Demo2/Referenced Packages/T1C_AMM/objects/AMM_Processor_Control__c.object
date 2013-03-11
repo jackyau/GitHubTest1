@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object will monitor the status of each AMM Processor, ensuring that they are all running.  This object will also hand notifications if an AMM Processor, or AMM Job does not appear to be running.</description>
+    <enableActivities>true</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>AMM_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(AND(((NOW() - Heartbeat__c)*1440 &gt;  Heartbeat_Interval__c),NOT(ISPICKVAL( State__c,&quot;AMM Not Running&quot;))), &quot;AMM Outage&quot;,IF(ISPICKVAL( State__c,&quot;AMM Not Running&quot;), &quot;AMM Not Running&quot;,&quot;AMM Running&quot;))</formula>
+        <label>AMM Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Access_Code__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Unique code that applies to this specific AMM Job Processor.  When the AMM Job Processor is created, this code ensures the right user is setting up the processor.  This code should be genereated by the AMM Job Processor Control.</description>
+        <externalId>false</externalId>
+        <label>Access Code</label>
+        <length>30</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Folder_Names__c</fullName>
+        <deprecated>false</deprecated>
+        <description>List of Template Folders which user could view in AMM.</description>
+        <externalId>false</externalId>
+        <label>Folder Names</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Heartbeat_Interval__c</fullName>
+        <defaultValue>30</defaultValue>
+        <deprecated>false</deprecated>
+        <description>The AMM Processor Control object should ping each AMM Processor every &apos;Heartbeat Interval&apos; minutes to confirm that it is running.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Heartbeat Interval in minutes.</inlineHelpText>
+        <label>Heartbeat Interval</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Heartbeat__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates the last time the AMM Job Processor Control received a response from the AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>Heartbeat</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>IP_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates the IP Address of the AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>IP Address</label>
+        <length>30</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Job_Count__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Count of the jobs processed by this AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>Job Count</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Last_Job_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <description>ID of the last AMM Job processed by this AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>Last Job ID</label>
+        <length>25</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Last_Job_Time__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates the time the last AMM Job was processed by this AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>Last Job Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Mailbox_Max_Size__c</fullName>
+        <defaultValue>104857600</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Mailbox Max Size in Bytes.</description>
+        <externalId>false</externalId>
+        <label>Mailbox Max Size</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Sender__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>This field indicates the user associated with this AMM Job Processor.</description>
+        <externalId>false</externalId>
+        <label>Sender</label>
+        <referenceTo>User</referenceTo>
+        <relationshipName>AMM_Job_Processors_Control</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Server_Address__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Mailing Server Address (IP format)</description>
+        <externalId>false</externalId>
+        <label>Server Address</label>
+        <length>30</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Server_Domain__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Mailing Server Domain</description>
+        <externalId>false</externalId>
+        <label>Server Domain</label>
+        <length>30</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Server_Username__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Mailing Server Username</description>
+        <externalId>false</externalId>
+        <label>Server Username</label>
+        <length>30</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>State__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field indicates the current state of the AMM Processor.</description>
+        <externalId>false</externalId>
+        <label>State</label>
+        <picklist>
+            <picklistValues>
+                <fullName>AMM Not Running</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>AMM Running, Exchange Connected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>AMM Running, Exchange Not Connected</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>UserID__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>UserID</label>
+        <length>18</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <label>AMM Processor Control</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Access_Code__c</columns>
+        <columns>Heartbeat__c</columns>
+        <columns>IP_Address__c</columns>
+        <columns>Job_Count__c</columns>
+        <columns>Sender__c</columns>
+        <columns>Server_Address__c</columns>
+        <columns>State__c</columns>
+        <columns>Last_Job_ID__c</columns>
+        <columns>Last_Job_Time__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>AMM Processor Control Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>AMM Processors Control</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <startsWith>Vowel</startsWith>
+</CustomObject>

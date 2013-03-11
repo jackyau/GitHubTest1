@@ -1,0 +1,28 @@
+<apex:page controller="ortoo_e2a.AboutController">
+  <apex:form id="theForm">
+        <apex:sectionHeader title="Ortoo : Email-to-anything" subtitle="About"/>
+        <apex:pageBlock title="About Email-to-anything" id="pageView">
+            <!--  <apex:pageBlockSection title="Frequently Asked Questions" columns="1" collapsible="false">
+                <br/>
+                For a list of Frequently Asked Questions, please visit the Ortoo FAQ page:
+                <apex:outputLink value="http://www.ortoomail.com/FAQ.html" target="_blank">http://www.ortoomail.com/FAQ.html</apex:outputLink>
+            </apex:pageBlockSection> -->
+            <apex:pageBlockSection title="Information" columns="1" collapsible="false">
+                <br/>
+                For further information about Ortoo, including help and support, please visit the Ortoo web page for contact info:
+                <apex:outputLink value="http://www.ortoomail.com/" target="_blank">http://www.ortoomail.com/</apex:outputLink>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="User Guide" columns="1" collapsible="false">
+                <br/>
+                Click on the link below for the latest Ortoo Email-to-anything User Guide:
+                <apex:outputLink value="http://www.ortoomail.com/manuals/e2a/v1.0/Ortoo%20Email-to-anything%20Quick%20Start%20Guide.pdf" target="_blank">http://www.ortoomail.com/manuals/e2a/v1.0/Ortoo Email-to-anything Quick Start Guide.pdf</apex:outputLink>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Version" columns="1" collapsible="false">
+                <br/>
+                {!PackageVersion}
+                <br/><br/>
+                © 2010 The Software Connection Ltd
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

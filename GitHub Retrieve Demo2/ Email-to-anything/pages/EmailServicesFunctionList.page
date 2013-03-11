@@ -1,0 +1,77 @@
+<apex:page controller="ortoo_e2a.EmailServicesFunctionListController">
+    <apex:form >
+        <apex:sectionHeader title="Email Services Rules"/>
+        <apex:pageBlock id="service_list">
+            <apex:pagemessages />
+            <apex:pageBlockTable value="{!EmailServicesFunctionList}" var="SF" id="service_list_table">
+                <apex:column headerValue="Action">
+                    <apex:outputPanel rendered="{!SF.FunctionId != EditRowStdFunctionId}">
+                        <apex:outputPanel rendered="{!SF.RelatedFunctionId == ''}">
+                            <apex:commandLink action="{!AddRules}" rerender="service_list_table">
+                                Add
+                                <apex:param name="editrowstdid" value="{!SF.FunctionId}" assignTo="{!EditRowStdFunctionId}"/>
+                                <apex:param name="editrowrelatedid" value="{!SF.RelatedFunctionId}" assignTo="{!EditRowRelatedFunctionId}"/>
+                                <apex:param name="editrowlocalpart" value="{!SF.FunctionName}" assignTo="{!EditRowFunctionName}"/>
+                            </apex:commandLink>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!SF.RelatedFunctionId != ''}">
+                            <apex:commandLink action="{!DeleteRules}" rerender="service_list_table" onclick="if (!window.confirm('You are about to delete the selected Email Service Rules\nThey cannot be retrieved. Are you sure?')) return false;">
+                                Del
+                                <apex:param name="editrowrelatedid" value="{!SF.RelatedFunctionId}" assignTo="{!EditRowRelatedFunctionId}"/>
+                            </apex:commandLink>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!SF.FunctionId == EditRowStdFunctionId}">
+                        <apex:commandLink action="{!SaveRules}" rerender="service_list_table">
+                            Save
+                        </apex:commandLink>
+                        &nbsp;&nbsp;
+                        <apex:commandLink action="{!Cancel}" rerender="service_list_table">
+                            Cancel
+                        </apex:commandLink>
+                    </apex:outputPanel>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:outputLabel value="Service Name" rendered="{!FunctionsExist}"/>
+                    </apex:facet>
+                    <apex:outputLink value="/email/admin/detailEmailServicesFunction.apexp?id={!SF.FunctionId}" >
+                        {!SF.FunctionName}
+                    </apex:outputLink>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:outputLabel value="Active" rendered="{!FunctionsExist}"/>
+                    </apex:facet>
+                    <apex:image url="/img/checkbox_checked.gif" rendered="{!SF.IsActive == true}"/>
+                    <apex:image url="/img/checkbox_unchecked.gif" rendered="{!SF.IsActive == false}"/>
+                </apex:column>
+                <apex:column >
+                    <apex:facet name="header">
+                        <apex:outputLabel value="E2A Apex Class" rendered="{!FunctionsExist}"/>
+                    </apex:facet>
+                    <apex:outputText value="{!SF.ApexClassName}"/>
+                </apex:column>
+                <apex:column headerValue="Target Object">
+                    <apex:outputText value="{!SF.ObjectLabel}" rendered="{!SF.FunctionId != EditRowStdFunctionId}"/>
+                    <apex:selectList value="{!EditRelatedObjectPrefix}" size="1" rendered="{!SF.FunctionId == EditRowStdFunctionId}">
+                        <apex:selectOptions value="{!ObjectOptions}"></apex:selectOptions>
+                    </apex:selectList>
+                </apex:column>
+                <apex:column headerValue="Rules Name">
+                    <apex:outputPanel rendered="{!SF.FunctionId != EditRowStdFunctionId}">
+                        <apex:commandLink action="{!Detail}" rendered="{!SF.RelatedFunctionName != '*new*'}">
+                            {!SF.RelatedFunctionName}
+                            <apex:param name="editrowrelatedid" value="{!SF.RelatedFunctionId}" assignTo="{!EditRowRelatedFunctionId}"/>
+                        </apex:commandLink>
+                        <apex:commandLink action="{!Detail}" rendered="{!SF.RelatedFunctionName == '*new*'}" style="color:red">
+                            [create new rules]
+                            <apex:param name="editrowrelatedid" value="{!SF.RelatedFunctionId}" assignTo="{!EditRowRelatedFunctionId}"/>
+                        </apex:commandLink>
+                    </apex:outputPanel>
+                </apex:column>
+            </apex:pageBlockTable>
+            <apex:outputText value="no email services functions available for Email-to-Anything" rendered="{!FunctionsDoNotExist}"/>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
